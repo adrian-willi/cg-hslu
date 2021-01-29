@@ -1,0 +1,157 @@
+--------------------------------------------------------------------------------
+STRUCTURE
+--------------------------------------------------------------------------------
+
+// Create Context
+var canvas = document.getElementById("myCanvas");
+var gl = canvas.getContext("webgl");
+
+
+// Vertex-Data
+  const vertexData = [
+      0, 1, 0,
+      1, -1, 0,
+      -1, -1, 0
+  ];
+
+
+// Create Buffer
+  const buffer = gl.createBuffer();
+
+
+// Load Vertex Data into Buffer
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexData));
+
+
+// Create Vertex Shader
+  const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+  gl.shaderSource(vertexShader, "
+      attribute vec3 position;
+      void main(){
+        gl_Position = vec4(position, 1);
+      }
+  ");
+  gl.compileShader(vertexShader);
+
+
+// Create Fragment Shader
+  const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+  gl.shaderSource(fragmentShader, "
+      void main(){
+        gl_FragColor = vec4(1, 0, 0, 1);
+      }
+  ");
+  gl.compileShader(fragmentShader);
+
+
+// Create Program
+  const program = gl.createProgram();
+
+// Attach Shaders To Program
+  gl.attachShader(program, vertexShader);
+  gl.attachShader(program, fragmentShader);
+  gl.linkProgram(program);
+
+// Enable Vertex Attribute
+  const positionLocation = gl.getAttribLocation(program, 'position');
+  gl.enableVertexAttribArray(positionLocation);
+  gl.vertexAttribPointer(positionLocation, 3, gl.Float, false, 0, 0);
+
+
+// Draw
+  gl.useProgram(program);
+  gl.drawArrays(gl.Triangles, 0, 3);
+
+
+
+--------------------------------------------------------------------------------
+STRUCTURE
+--------------------------------------------------------------------------------
+
+  gl.clearColor(1,0,0,1);
+  - This specifies what color values to use when calling the clear() method
+    The values are clamped between 0 and 1
+
+  gl.clear(parameter);
+  - The preset values can be set by clearColor(), clearDepth() or clearStencil()
+  - parameter: A GLbitfield bitwise OR mask that indicates the buffers to be
+    cleared. Possible values are:
+      - gl.COLOR_BUFFER_BIT
+      - gl.DEPTH_BUFFER_BIT
+      - gl.STENCIL_BUFFER_BIT
+  - Overrides whole context when getting called
+
+  gl.getAttribLocation(program, "attributeName");
+  - Looks in the Shader-Program for the given "Attribute-Name" and returns a
+    GlInt of the position
+
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), usage);
+  - usage:
+    - gl.STATIC_DRAW: The contents are intended to be specified once by the
+      application, and used many times as the source for WebGL drawing and image
+      specification commands
+    - gl.DYNAMIC_DRAW: The contents are intended to be respecified repeatedly by
+      the application, and used many times as the source for WebGL drawing and image
+      specification commands
+    - gl.STREAM_DRAW: The contents are intended to be specified once by the
+      application, and used at most a few times as the source for WebGL drawing
+      and image specification commands.
+
+  gl.enableVertexAttribArray(aVertexPositionId);
+  - In WebGL, values that apply to a specific vertex are stored in attributes.
+    These are only available to the JavaScript code and the vertex shader.
+    Attributes are referenced by an index number into the list of attributes
+    maintained by the GPU. Some vertex attribute indices may have predefined
+    purposes, depending on the platform and/or the GPU. Others are assigned by
+    the WebGL layer when you create the attributes.
+
+  gl.vertexAttribPointer(index, size, type, normalized, stride, offset);
+  - index: wie oben "aVertexPositionId" von "getAttribLocation"
+  - size: number of components per vertex attribute "location, color etc."
+    (between 1 and 4)
+  - type: defines data type of each component in the array:
+      - gl.BYTE: signed 8-bit integer, with values in [-128, 127]
+      - gl.SHORT: signed 16-bit integer, with values in [-32768, 32767]
+      - gl.UNSIGNED_BYTE: unsigned 8-bit integer, with values in [0, 255]
+      - gl.UNSIGNED_SHORT: unsigned 16-bit integer, with values in [0, 65535]
+      - gl.FLOAT: 32-bit IEEE floating point number
+  - normalized: A GLboolean specifying whether integer data values should be
+    normalized into a certain range when being cast to a float.
+      - For types gl.BYTE and gl.SHORT, normalizes the values to [-1, 1] if true
+      - For types gl.UNSIGNED_BYTE and gl.UNSIGNED_SHORT, normalizes the values
+        to [0, 1] if true
+      - For types gl.FLOAT and gl.HALF_FLOAT, this parameter has no effect
+  - stride:
+      - Sum of components per vertex (location + color + ...)
+      - Multiply it with Float32Array.BYTES_PER_ELEMENT
+      - Indication in Bytes -> 0 - 255
+  - offset:
+      - index where attribute (location, color etc.) starts
+      - multiply it with Float32Array.BYTES_PER_ELEMENT
+      - Indication in Bytes -> 0 - 255
+
+  gl.drawArrays(mode, first, count)
+  - mode:
+      - gl.POINTS: Draws a single dot.
+      - gl.LINE_STRIP: Draws a straight line to the next vertex.
+      - gl.LINE_LOOP: Draws a straight line to the next vertex, and connects
+        the last vertex back to the first.
+      - gl.LINES: Draws a line between a pair of two vertices.
+      - gl.TRIANGLE_STRIP: Draws continuous triangles in order
+      - gl.TRIANGLE_FAN: Draws Triangles around the first vertex
+      - gl.TRIANGLES: Draws a triangle for a group of three vertices
+  - first:
+      - A GLint specifying the starting index in the array of vector points
+  - count:
+      - A GLsizei specifying the number of indices to be rendered
+
+    gl.drawElements(mode, count, type, offset)
+    - mode: Same as above (drawArrays())
+    - count: Same as above (drawArrays())
+    - type: A GLenum specifying the type of the values in the element
+      array buffer. Possible values are:
+          - gl.UNSIGNED_BYTE
+          - gl.UNSIGNED_SHORT
+    - offset: A GLintptr specifying a byte offset in the element array buffer.
+      Must be a valid multiple of the size of the given type.
